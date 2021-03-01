@@ -1,5 +1,6 @@
 ![QHack Banner](qhack_banner.png)  
   
+## Introduction  
 Hi, these are my solutions to the [QHack 2021](https://qhack.ai) quantum machine learning hackathon.  
 Everything is coded in Xanadu's [PennyLane](https://pennylane.readthedocs.io) quantum programming package.  
 The original repo with all the hackathon details can be found at [/XanaduAI/QHack](https://github.com/XanaduAI/QHack).  
@@ -11,7 +12,7 @@ __Date:__ February 2021
 ## Score  
 Here is a screenshot of my completed hackathon scoreboard entry.  
 I ranked 51<sup>st</sup> in terms of cumulative completion time for the problem sets.  
-![Scoreboard](qhack_score.png)  
+![Scoreboard](qhack_score.jpg)  
   
 ## Files  
 The `QML_Challenges` folder contains all the problem statements and solutions.  
