@@ -22,67 +22,60 @@ def find_excited_states(H):
     energies = np.zeros(3)
 
     # QHACK #
-    ## Overlap Cost Function
-    ## This measures the energy and state overlap of each ansatz independently
-    ## then combines them classically to give a new cost function
+    ## Subspace-Search VQE
+    ## This uses SS-VQE, and it does output relatively accurate minimum energies
+    ## However, it seems to be too slow/inaccurate for the hackathon
 
-    def variational_ansatz(params, wires):
+    def variational_ansatz(params, wires, basis_state=None):
         """variational ansatz circuit"""
+        # initialise given basis state
+        qml.BasisState(basis_state, wires=wires)
+        # variationally tweak the state
         for param in params:
             qml.broadcast(qml.Rot, wires, pattern="single", parameters=param)
             qml.broadcast(qml.CNOT, wires, pattern="ring")
 
-    # calculate energy of parameters/ansatz
-    num_qubits = len(H.wires)
-    dev1 = qml.device("default.qubit", wires=num_qubits)
-    energy = qml.ExpvalCost(variational_ansatz, H, dev1)
+    def cost_ssvqe(num_eigen, *args, **kwargs):
+        """cost function for SS-VQE with num_eigen orthogonal states"""
+        out = []
+        for i in range(num_eigen):
+            # get orthogonal state |...00>, |...01>, |...10>, etc
+            basis_state = format(i, "0%db" % num_qubits)
+            basis_state = np.array(list(basis_state), dtype=int)
+            # find cost of orthogonal state
+            costfn = qml.ExpvalCost(lambda *args, **kwargs: \
+                variational_ansatz(*args,**kwargs,basis_state=basis_state), H, dev)
+            out.append(costfn(*args, **kwargs))
+        return np.array(out)
 
-    # calculate overlap of 2 parameters/ansatz
-    dev2 = qml.device("default.qubit", wires=2*num_qubits+1)
-    @qml.qnode(dev2)
-    def overlap(paramsX, paramsY):
-        """calculate overlap of 2 parameters/ansatz"""
-        wires = range(2*num_qubits+1)
-        variational_ansatz(paramsX, wires[:num_qubits])
-        variational_ansatz(paramsY, wires[num_qubits:-1])
-        qml.Hadamard(wires=wires[-1])
-        for i in range(num_qubits):
-            qml.CSWAP(wires=(wires[-1], wires[i], wires[i+num_qubits]))
-        qml.Hadamard(wires=wires[-1])
-        return qml.expval(qml.PauliZ(wires=wires[-1]))
+    def cost_fn(*args, **kwargs):
+        """sums up SS-VQE to train classifier"""
+        return np.sum(cost_ssvqe(num_eigen, *args, **kwargs))
 
     # fixed variables
-    opt = qml.MomentumOptimizer(0.1)
-    overlap_weight = 50 # weight of state overlap in cost function
-    num_layers = 2 # number of layers in variational ansatz
+    num_layers = 3 # number of layers in variational ansatz
     num_iter = 500 # number of VQE iterations
     num_eigen = 3 # number of eigen-energies to output
-    threshold = 1e-8 # threshold to stop
+    num_qubits = len(H.wires) # number of qubits
+    threshold = 1e-5 # threshold to stop
 
-    def cost_fn(params, overlap_params):
-        """training cost function. Includes H and state overlap"""
-        cost = energy(params)
-        for i in overlap_params:
-            cost += overlap_weight * overlap(params, i)
-        return cost
+    # initialise qnode & optimiser
+    dev = qml.device("default.qubit", wires=num_qubits)
+    opt = qml.GradientDescentOptimizer(0.1)
 
     # VQE
-    prev_params = []
-    for i in range(num_eigen):
-        params = np.random.uniform(size=(num_layers, num_qubits, 3))
+    params = np.random.uniform(size=(num_layers, num_qubits, 3))
+    for _ in range(num_iter):
+        params, prev_energy = opt.step_and_cost(cost_fn, params)
+        energy = cost_fn(params)
+        if np.abs(energy - prev_energy) < threshold:
+            break
 
-        for _ in range(num_iter):
-            params, prev_cost = opt.step_and_cost(lambda x: cost_fn(x, prev_params), params)
-            cost = cost_fn(params, prev_params)
-            if np.abs(cost - prev_cost) < threshold:
-                break
+        # # print progress
+        # if _ % 20 == 0:
+        #     print('Iteration = {:},  Energy = {:.8f} Ha'.format(_, energy))
 
-            # # print progress
-            # if _ % 20 == 0:
-            #     print('Iteration = {:},  cost = {:.8f}'.format(_, cost))
-
-        energies[i] = energy(params)
-        prev_params.append(params)
+    energies = np.sort(cost_ssvqe(num_eigen, params))
 
     # QHACK #
 

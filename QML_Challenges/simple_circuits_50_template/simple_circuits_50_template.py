@@ -19,19 +19,16 @@ def simple_circuits_50(angle):
     Returns:
         float: the expectation value of the tensor observable
     """
+    dev = qml.device('default.qubit', wires=2)
 
-    expectation_value = 0.0
+    @qml.qnode(dev)
+    def simplecircuit(param):
+        qml.Hadamard(0)
+        qml.CNOT(wires=[0,1])
+        qml.RY(param, wires=0)
+        return qml.expval(qml.PauliZ(0) @ qml.PauliZ(1))
 
-    # QHACK #
-
-    # Step 1 : initialize a device
-
-    # Step 2 : Create a quantum circuit and qnode
-
-    # Step 3 : Run the qnode
-    # expectation_value = ?
-
-    # QHACK #
+    expectation_value = simplecircuit(angle)
     return expectation_value
 
 

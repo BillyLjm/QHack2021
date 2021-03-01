@@ -33,6 +33,66 @@ def natural_gradient(params):
 
     # QHACK #
 
+    # Fubini-Study metric
+    metric = np.zeros((len(params), len(params)))
+    # get <psi(r)|
+    qnode(params)
+    psi = np.conj(dev.state)
+    # diagonal elements
+    for i in range(len(params)):
+        # |psi(r)>
+        metric[i,i] = 2
+        # |psi(r + 2i)>
+        params[i] += np.pi
+        qnode(params)
+        metric[i,i] -= np.abs(np.dot(psi, dev.state))**2
+        # |psi(r - 2i)>
+        params[i] -= 2*np.pi
+        qnode(params)
+        metric[i,i] -= np.abs(np.dot(psi, dev.state))**2
+        # reset params
+        params[i] += np.pi
+    # non-diagonal elements
+    for i in range(len(params)):
+        for j in range(i, len(params)):
+            # |psi(r + i + j)>
+            params[i] += np.pi/2
+            params[j] += np.pi/2
+            qnode(params)
+            metric[i,j] = -np.abs(np.dot(psi, dev.state))**2
+            # |psi(r - i + j)>
+            params[i] -= np.pi
+            qnode(params)
+            metric[i,j] += np.abs(np.dot(psi, dev.state))**2
+            # |psi(r - i - j)>
+            params[j] -= np.pi
+            qnode(params)
+            metric[i,j] -= np.abs(np.dot(psi, dev.state))**2
+            # |psi(r + i - j)>
+            params[i] += np.pi
+            qnode(params)
+            metric[i,j] += np.abs(np.dot(psi, dev.state))**2
+            # symmetric matrix
+            metric[j,i] = metric[i,j]
+            # reset params
+            params[i] -= np.pi/2
+            params[j] += np.pi/2
+    metric = metric / 8
+
+    # gradient (parameter shift)
+    shift = 1
+    gradient = np.zeros(len(params))
+    for i in range(len(params)):
+        params[i] += shift
+        gradient[i] = qnode(params)
+        params[i] -= 2 * shift
+        gradient[i] -= qnode(params)
+        params[i] += shift
+    gradient = gradient / (2 * np.sin(shift))
+
+    # natural gradient
+    natural_grad = np.matmul(np.linalg.inv(metric), gradient)
+
     # QHACK #
 
     return natural_grad

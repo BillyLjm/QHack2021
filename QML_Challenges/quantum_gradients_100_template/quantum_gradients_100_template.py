@@ -38,7 +38,25 @@ def parameter_shift(weights):
     gradient = np.zeros_like(weights)
 
     # QHACK #
-    #
+
+    # flatten arrays to 1D
+    shape = weights.shape
+    flat = weights.flatten()
+    gradient = np.zeros_like(flat)
+
+    # parameter-shift gradient
+    shift = 1
+    for i in range(len(flat)):
+        flat[i] += shift
+        gradient[i] = circuit(flat.reshape(shape))
+        flat[i] -= 2 * shift
+        gradient[i] -= circuit(flat.reshape(shape))
+        flat[i] += shift
+    gradient = gradient / (2 * np.sin(shift))
+
+    # unflatten array
+    gradient = gradient.reshape(shape)
+
     # QHACK #
 
     return gradient

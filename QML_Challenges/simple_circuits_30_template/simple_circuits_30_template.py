@@ -18,18 +18,14 @@ def simple_circuits_30(angle):
     Returns:
         float: the expectation value of a PauliX measurement
     """
-    x_expectation = 0.0
+    dev = qml.device('default.qubit', wires=1)
 
-    # QHACK #
+    @qml.qnode(dev)
+    def simplecircuit(param):
+        qml.RY(param, wires=0)
+        return qml.expval(qml.PauliX(0))
 
-    # Step 1 : initialize a device
-
-    # Step 2 : Create a quantum circuit and qnode
-
-    # Step 3 : Run the qnode
-    # x_expectation = ?
-
-    # QHACK #
+    x_expectation = simplecircuit(angle)
     return x_expectation
 
 

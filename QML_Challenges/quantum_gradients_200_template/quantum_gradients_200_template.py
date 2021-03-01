@@ -47,6 +47,55 @@ def gradient_200(weights, dev):
 
     # QHACK #
 
+    shift = 1
+
+    # find unmixed derivatives
+    # 1st derivative: [f(r + 2s) - f(r - 2s)] / [2 sin(2s)]
+    # 2nd derivative: [-2f(r) + f(r + 2s) + f(r - 2s)] / [4 sin^2(s)]
+    fr = circuit(weights)
+    for i in range(len(weights)):
+        # f(r + 2s)
+        weights[i] += 2 * shift
+        tmp = circuit(weights)
+        gradient[i] = tmp
+        hessian[i,i] = tmp
+        # f(r - 2s)
+        weights[i] -= 4 * shift
+        tmp = circuit(weights)
+        gradient[i] -= tmp
+        hessian[i,i] += tmp
+        # f(r)
+        hessian[i,i] -= 2 * fr
+        # reset weights
+        weights[i] += 2 * shift
+
+    # find mixed derivatives
+    # 2nd derivative: [f(r+x+y) - f(r-x+y) - f(r+x-y) + f(r-x-y)] / [4 sin^2(s)]
+    for i in range(len(weights)):
+        for j in range(i+1, len(weights)):
+            # f(r + x + y)
+            weights[i] += shift
+            weights[j] += shift
+            hessian[i,j] = circuit(weights)
+            # f(r - x + y)
+            weights[i] -= 2 * shift
+            hessian[i,j] -= circuit(weights)
+            # f(r - x - y)
+            weights[j] -= 2 * shift
+            hessian[i,j] += circuit(weights)
+            # f(r + x - y)
+            weights[i] += 2 * shift
+            hessian[i,j] -= circuit(weights)
+            # symmetric matrix
+            hessian[j,i] = hessian[i,j]
+            # reset weights
+            weights[i] -= shift
+            weights[j] += shift
+
+    # include denominator
+    gradient = gradient / (2 * np.sin(2*shift))
+    hessian = hessian / (4 * np.sin(shift)**2)
+
     # QHACK #
 
     return gradient, hessian, circuit.diff_options["method"]

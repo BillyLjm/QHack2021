@@ -1,31 +1,37 @@
-![image](img/qhack-banner.png)
-
-Welcome to [QHack](https://qhack.ai), the quantum machine learning hackathon! We're thrilled to have the opportunity to meet and work with such a large and diverse group of participants, and we look forward to interacting with you all during the event.
-
-This year's event consists of three main components:
-
-- **[QHack Live Stream](https://twitch.tv/qhack)**: We will be streaming at [twitch.tv/qhack](https://twitch.tv/qhack). Join us for three days of talks from an amazing set of guest speakers. 
-
-- **[QHack QML Challenges](QML_Challenges.md)**: Build your skills by tackling a series of QML challenge questions for all skill levels. 
-
-- **[QHack Open Hackathon](Open_Hackathon.md)**: Show the world what you can do with [PennyLane](https://pennylane.ai) and [Amazon Braket](https://aws.amazon.com/braket/)! Dream up your own hackathon project, or start from one of our seed ideas. 
-
-The up-to-date event schedule can be found [here](https://qhack.ai/schedule.html).
-
-## Power Ups and Prizes
-
-QHack has some amazing goodies and prizes available to be won, courtesy of our sponsors.
-
-### Credits for AWS
-
-- **Earn $250 in AWS credits**: At the conclusion of our Feb 19 live stream, the top 80 teams on the scoreboard will receive $250 credits to help them build their Open Hackathon solutions on AWS. Teams can apply credits to any AWS service, including Amazon Braket where they can showcase their ideas on Rigetti, IonQ, and D-Wave hardware or with high-performance simulators in the cloud.
-
-- **Earn $4000 in AWS credits**: Teams who open an issue by Feb 24 on [this GitHub repository](https://github.com/XanaduAI/QHack/issues) with a description of their (in progress) Open Hackathon project are eligible for *$4000 in additional AWS credits* to use towards their hackathon project.
-
-### Grand Prize
-
-- **Win a summer internship at CERN**: The top overall team (judged by QML Challenge scoreboard ranking and Open Hackathon project) will receive up to 3 summer internship positions at CERN. 
-
-Please read our [terms and conditions](https://qhack.ai/terms_and_conditions_2021.html) for official eligibility and evaluation criteria. Entry void in Quebec.
-
-Participants in the event agree to abide by the [QHack Code of Conduct](Code_of_Conduct.md).
+![QHack Banner](qhack_banner.png)  
+  
+Hi, these are my solutions to the [QHack 2021](https://qhack.ai) quantum machine learning hackathon.  
+Everything is coded in Xanadu's [PennyLane](https://pennylane.readthedocs.io) quantum programming package.  
+The original repo with all the hackathon details can be found at [/XanaduAI/QHack](https://github.com/XanaduAI/QHack).  
+  
+## Hackathon Details  
+__Site:__ [QHack.ai](https://qhack.ai)  
+__Date:__ February 2021  
+  
+## Score  
+Here is a screenshot of my completed hackathon scoreboard entry.  
+I ranked 51<sup>st</sup> in terms of cumulative completion time for the problem sets.  
+![Scoreboard](qhack_score.png)  
+  
+## Files  
+The `QML_Challenges` folder contains all the problem statements and solutions.  
+Each problem set is in its own sub-folder with the name `<topic>_<score>_template`.  
+In each problem set, there is a `.pdf` problem statement and a `.py` solution.  
+There are also given test input `.in` and answers `.ans` with can be invoked in terminal via  
+```console  
+>> python <problem name>_template.py < 1.in  
+```  
+  
+## Topics  
+[`simple_circuits_20`](QML_Challenges/simple_circuits_20_template) - 1-qubit Circuits  
+[`simple_circuits_30`](QML_Challenges/simple_circuits_30_template) - 1-qubit Circuits  
+[`simple_circuits_50`](QML_Challenges/simple_circuits_50_template) - 2-qubit Circuits  
+[`quantum_gradients_100`](QML_Challenges/quantum_gradients_100_template) - Parameter-shift Rule  
+[`quantum_gradients_200`](QML_Challenges/quantum_gradients_200_template) - Hessian Matrix  
+[`quantum_gradients_500`](QML_Challenges/quantum_gradients_500_template) - Natural Gradient  
+[`circuit_training_100`](QML_Challenges/circuit_training_100_template) - PennyLane's Optimisers  
+[`circuit_training_200`](QML_Challenges/circuit_training_200_template) - Maximal Independent Set  
+[`circuit_training_500`](QML_Challenges/circuit_training_500_template) - Variational Classifier  
+[`vqe_100`](QML_Challenges/vqe_100_template) - Variational Quantum Eigensolver (VQE)  
+[`vqe_200`](QML_Challenges/vqe_200_template) - Ansatz Design  
+[`vqe_500`](QML_Challenges/vqe_500_template) - VQE for Excited States  

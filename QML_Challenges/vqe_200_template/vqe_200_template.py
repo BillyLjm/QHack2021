@@ -2,7 +2,7 @@
 
 import sys
 import pennylane as qml
-import numpy as np
+import autograd.numpy as np
 
 
 def variational_ansatz(params, wires):
@@ -21,6 +21,23 @@ def variational_ansatz(params, wires):
     """
 
     # QHACK #
+
+    for i in range(len(wires)):
+        # calculates angle to rotate
+        sinangle = params[i] / np.sqrt(np.sum(params[i:]**2))
+        # prepare bits
+        if np.abs(sinangle) != 1:
+            # rotate next bit
+            angle = 2 * np.arcsin(sinangle)
+            qml.RY(angle, wires=wires[i])
+            # unrotate bit if there are already preceding 1's
+            for j in range(i):
+                qml.CRY(-angle, wires=(wires[j], wires[i]))
+        else: # otherwise gives problem w/ autograd
+            qml.PauliX(wires=wires[i])
+            for j in range(i):
+                qml.CNOT(wires=(wires[j], wires[i]))
+            break
 
     # QHACK #
 
@@ -41,15 +58,33 @@ def run_vqe(H):
 
     # QHACK #
 
+    # fixed variables
+    threshold = 1e-6 # threshold to stop
+    num_qubits = len(H.wires)
+
     # Initialize the quantum device
+    dev = qml.device("default.qubit", wires=num_qubits)
 
     # Randomly choose initial parameters (how many do you need?)
+    params = np.random.uniform(size=(num_qubits))
+    params = params / np.sqrt(sum(params**2))
 
     # Set up a cost function
+    cost_fn = qml.ExpvalCost(variational_ansatz, H, dev)
 
     # Set up an optimizer
+    opt = qml.GradientDescentOptimizer()
 
     # Run the VQE by iterating over many steps of the optimizer
+    for _ in range(500):
+        params, prev_energy = opt.step_and_cost(cost_fn, params)
+        energy = cost_fn(params)
+        if np.abs(energy - prev_energy) < threshold:
+            break
+
+        # # print progress
+        # if _ % 20 == 0:
+        #     print('Iteration = {:},  Energy = {:.8f} Ha'.format(_, energy))
 
     # QHACK #
 

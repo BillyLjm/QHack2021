@@ -18,17 +18,14 @@ def simple_circuits_20(angle):
     Returns:
         float: the probability of of the state being in the 0 ground state
     """
-    prob = 0.0
-    # QHACK #
+    dev = qml.device('default.qubit', wires=1)
 
-    # Step 1 : initalize a device
+    @qml.qnode(dev)
+    def simplecircuit(param):
+        qml.RX(param, wires=0)
+        return qml.probs(0)
 
-    # Step 2 : Create a quantum circuit and qnode
-
-    # Step 3 : Run the qnode
-    # prob = ?
-
-    # QHACK #
+    prob = simplecircuit(angle)[0]
     return prob
 
 
