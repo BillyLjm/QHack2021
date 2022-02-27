@@ -3,7 +3,7 @@
 ## Introduction  
 Hi, these are my solutions to the [QHack 2021](https://qhack.ai) quantum machine learning hackathon.  
 Everything is coded in Xanadu's [PennyLane](https://pennylane.readthedocs.io) quantum programming package.  
-The original repo with all the hackathon details can be found at [/XanaduAI/QHack](https://github.com/XanaduAI/QHack).  
+The original repo with all the hackathon details can be found at [/XanaduAI/QHack](https://github.com/XanaduAI/QHack2021).  
   
 ## Hackathon Details  
 __Site:__ [QHack.ai](https://qhack.ai)  
